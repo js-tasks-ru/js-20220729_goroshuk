@@ -9,7 +9,7 @@ export function sortStrings(arr, param = "asc") {
 
   if (param === "asc") {
     return sortedArr.sort((a, b) => {
-      return a.localeCompare(b, undefined, {
+      return a.localeCompare(b, "ru-en", {
         sensitivity: "case",
         caseFirst: "upper",
       });
@@ -18,7 +18,7 @@ export function sortStrings(arr, param = "asc") {
 
   if (param === "desc") {
     return sortedArr.sort((a, b) => {
-      return b.localeCompare(a, undefined, {
+      return b.localeCompare(a, "ru-en", {
         sensitivity: "case",
         caseFirst: "upper",
       });
