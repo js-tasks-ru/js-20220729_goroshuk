@@ -5,10 +5,10 @@
  */
 export function invertObj(obj) {
   if (!obj) {
-    return undefined;
+    return;
   }
 
-  let arr = Object.entries(obj);
+  const arr = Object.entries(obj);
 
   arr.map((item) => item.reverse());
 
