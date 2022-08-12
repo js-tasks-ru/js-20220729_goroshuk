@@ -1,16 +1,17 @@
 export default class ColumnChart {
+  chartHeight = 50;
+
   constructor(data) {
     this.data = data;
-    this.chartHeight = 50;
     this.render();
-    this.initEventListeners();
+    this.elementFilling();
   }
 
   getTemplate() {
     return `
     <div class="column-chart" style="--chart-height: 50">
     <div class="column-chart__title">
-      
+
     </div>
     <div class="column-chart__container">
       <div data-element="header" class="column-chart__header"></div>
@@ -23,14 +24,14 @@ export default class ColumnChart {
   }
 
   render() {
-    const element = document.createElement("div"); // (*)
+    const element = document.createElement("div");
 
     element.innerHTML = this.getTemplate();
 
-    // NOTE: в этой строке мы избавляемся от обертки-пустышки в виде `div`
-    // который мы создали на строке (*)
     this.element = element.firstElementChild;
+  }
 
+  elementFilling() {
     if (!this.data) {
       this.element.classList.add("column-chart_loading");
       return;
@@ -39,24 +40,24 @@ export default class ColumnChart {
     const elementWithValue = this.element.querySelector(
       ".column-chart__header"
     );
+
     const chartTitle = this.element.querySelector(".column-chart__title");
 
-    if (this.data.label) {
-      let labelToChange = this.data.label;
-      labelToChange = labelToChange[0].toUpperCase() + labelToChange.slice(1);
-      chartTitle.innerHTML = labelToChange;
-    }
-
-    if (this.data.link) {
+    if (this.checkLink()) {
       const link = this.data.link;
       const anchor = document.createElement("a");
 
       anchor.className = "column-chart__link";
-      anchor.setAttribute("href", link);
+      anchor.href = link;
       anchor.textContent = "View all";
 
-      console.log(anchor);
       chartTitle.append(anchor);
+    }
+
+    if (this.data.label) {
+      let labelToChange = this.data.label;
+      labelToChange = labelToChange[0].toUpperCase() + labelToChange.slice(1);
+      chartTitle.prepend(labelToChange);
     }
 
     if (this.data.value) {
@@ -75,6 +76,12 @@ export default class ColumnChart {
   }
 
   initEventListeners() {}
+
+  checkLink() {
+    if (this.data) {
+      return Object.hasOwn(this.data, "link");
+    }
+  }
 
   remove() {
     this.element.remove();
@@ -100,6 +107,5 @@ export default class ColumnChart {
 
   destroy() {
     this.remove();
-    // NOTE: удаляем обработчики событий, если они есть
   }
 }
