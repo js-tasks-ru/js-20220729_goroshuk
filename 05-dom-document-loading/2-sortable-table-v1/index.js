@@ -64,7 +64,7 @@ export default class SortableTable {
   makeBody() {
     const body = document.createElement("div");
 
-    body.classList += "sortable-table__body";
+    body.classList.add("sortable-table__body");
 
     body.setAttribute("data-element", "body");
 
@@ -80,32 +80,36 @@ export default class SortableTable {
   }
 
   bodyFillWithImage(data) {
-    for (const good of data) {
-      this.subElements.body.innerHTML += `
-          <a href="#" class="sortable-table__row">
-            ${this.template(this.data)}
-            ${this.arrWithId
-              .map((id, index) => {
-                return index === 0
-                  ? (id = "")
-                  : `<div class="sortable-table__cell">${good[id]}</div>`;
-              })
-              .join("")}
-          </a>`;
-    }
+    this.subElements.body.innerHTML = `
+      ${data
+        .map((good) => {
+          return `
+        <div class="sortable-table__row">
+          ${this.template(this.data)}
+          ${this.arrWithId
+            .map((id, index) => {
+              if (index !== 0) {
+                return `<div class="sortable-table__cell">${good[id]}</div>`;
+              }
+            })
+            .join("")}
+        </div>`;
+        })
+        .join("")}`;
   }
 
   bodyFillNoImage(data) {
-    for (const good of data) {
-      this.subElements.body.innerHTML += `
-          <div class="sortable-table__row">
-            ${this.arrWithId
-              .map((id) => {
-                return `<div class="sortable-table__cell">${good[id]}</div>`;
-              })
-              .join("")}
-          </div>`;
-    }
+    this.subElements.body.innerHTML = `
+      ${data
+        .map((good) => {
+          return `
+        <div class="sortable-table__row">
+          ${this.arrWithId
+            .map((id) => `<div class="sortable-table__cell">${good[id]}</div>`)
+            .join("")}
+        </div>`;
+        })
+        .join("")}`;
   }
 
   checkType(id) {
@@ -119,33 +123,24 @@ export default class SortableTable {
 
     const type = this.checkType(whatSort);
 
-    this.subElements.body.innerHTML = "";
+    const sortMethods = {
+      asc: 1,
+      desc: -1,
+    };
 
     sortedArr.sort((a, b) => {
       if (type === "string") {
-        if (typeSort === "asc") {
-          return a[whatSort].localeCompare(b[whatSort], "ru-en", {
+        return (
+          sortMethods[typeSort] *
+          a[whatSort].localeCompare(b[whatSort], "ru-en", {
             sensitivity: "case",
             caseFirst: "upper",
-          });
-        }
-
-        if (typeSort === "desc") {
-          return b[whatSort].localeCompare(a[whatSort], "ru-en", {
-            sensitivity: "case",
-            caseFirst: "upper",
-          });
-        }
+          })
+        );
       }
 
       if (type === "number") {
-        if (typeSort === "asc") {
-          return a[whatSort] - b[whatSort];
-        }
-
-        if (typeSort === "desc") {
-          return b[whatSort] - a[whatSort];
-        }
+        return sortMethods[typeSort] * (a[whatSort] - b[whatSort]);
       }
     });
 
