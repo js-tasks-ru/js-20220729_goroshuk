@@ -11,6 +11,7 @@ export default class SortableTable {
   }
 
   getTemplateOfTable() {
+    [];
     return `
     <div class="sortable-table"></div>
     `;
