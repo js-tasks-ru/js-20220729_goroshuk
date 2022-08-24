@@ -48,8 +48,19 @@ class Tooltip {
     this.element.style.top = event.clientY + 10 + "px";
   };
 
+  remove() {
+    if (this.element) {
+      this.element.remove();
+    }
+  }
+
   destroy() {
-    this.element.remove();
+    document.removeEventListener("pointerover", this.pointerOverFunc);
+    document.removeEventListener("mousemove", this.mouseMoveFunc);
+    document.removeEventListener("pointerout", this.pointerOutFunc);
+
+    this.remove();
+    this.element = null;
   }
 }
 
