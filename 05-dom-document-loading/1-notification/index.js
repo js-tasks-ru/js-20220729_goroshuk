@@ -1,18 +1,12 @@
 export default class NotificationMessage {
-  constructor(message = "", { duration = 0, type = "" } = {}) {
-    NotificationMessage.removeElement();
+  static classElem;
 
+  constructor(message = "", { duration = 2000, type = "success" } = {}) {
     this.message = message;
     this.duration = duration;
     this.type = type;
 
     this.render();
-  }
-
-  static removeElement() {
-    if (NotificationMessage.classElem) {
-      NotificationMessage.classElem.remove();
-    }
   }
 
   getTemplate() {
@@ -27,12 +21,6 @@ export default class NotificationMessage {
         `;
   }
 
-  classAdd() {
-    return this.type === "success"
-      ? this.element.classList.add("success")
-      : this.element.classList.add("error");
-  }
-
   render() {
     const element = document.createElement("div");
 
@@ -40,24 +28,27 @@ export default class NotificationMessage {
 
     this.element = element.firstElementChild;
 
-    this.classAdd();
-
-    NotificationMessage.classElem = this.element;
+    this.element.classList.add(this.type);
   }
 
   show(target = document.body) {
-    target.append(NotificationMessage.classElem);
+    target.append(this.element);
 
-    if (NotificationMessage.intervalId) {
-      clearTimeout(NotificationMessage.intervalId);
-      NotificationMessage.intervalId = setTimeout(this.remove, this.duration);
-    } else {
-      NotificationMessage.intervalId = setTimeout(this.remove, this.duration);
+    if (NotificationMessage.activeNotification) {
+      NotificationMessage.activeNotification.remove();
     }
+
+    this.intervalId = setTimeout(() => {
+      return this.remove();
+    }, this.duration);
+
+    NotificationMessage.activeNotification = this;
   }
 
   remove() {
-    NotificationMessage.removeElement();
+    clearTimeout(this.intervalId);
+
+    this.element.remove();
   }
 
   destroy() {
