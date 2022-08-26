@@ -5,8 +5,6 @@ export default class SortableTable {
     this.headerConfig = headerConfig;
     this.data = data;
 
-    this.checkHeaderTemplateFunction();
-    this.getConfigId();
     this.render();
   }
 
@@ -15,20 +13,6 @@ export default class SortableTable {
     return `
     <div class="sortable-table"></div>
     `;
-  }
-
-  checkHeaderTemplateFunction() {
-    if (this.headerConfig[0].template) {
-      this.template = this.headerConfig[0].template;
-    }
-  }
-
-  getConfigId() {
-    this.arrWithId = [];
-
-    for (const item of this.headerConfig) {
-      this.arrWithId.push(item.id);
-    }
   }
 
   render() {
@@ -49,15 +33,21 @@ export default class SortableTable {
 
     header.setAttribute("data-element", "header");
 
-    const arrayHTML = this.headerConfig.map((item) => {
-      return `<div class="sortable-table__cell" data-id="${item.id}" data-sortable="${item.sortable}" data-sorttype="${item.sortType}">
+    header.innerHTML = this.headerConfig
+      .map((item) => {
+        if (item.sortType) {
+          return `<div class="sortable-table__cell" data-id="${item.id}" data-sortable="${item.sortable}" data-sorttype="${item.sortType}">
       <span>${item.title}</span>
     </div>`;
-    });
+        } else {
+          return `<div class="sortable-table__cell" data-id="${item.id}" data-sortable="${item.sortable}">
+        <span>${item.title}</span>
+      </div>`;
+        }
+      })
+      .join("");
 
-    header.innerHTML += arrayHTML.join("");
-
-    this.subElements["header"] = header;
+    this.subElements.header = header;
 
     this.element.append(header);
   }
@@ -69,48 +59,38 @@ export default class SortableTable {
 
     body.setAttribute("data-element", "body");
 
-    this.subElements["body"] = body;
+    this.subElements.body = body;
 
-    if (this.template) {
-      this.bodyFillWithImage(this.data);
-    } else {
-      this.bodyFillNoImage(this.data);
-    }
+    this.subElements.body.innerHTML += this.bodyRowFill(this.data);
 
     this.element.append(body);
   }
 
-  bodyFillWithImage(data) {
-    this.subElements.body.innerHTML = `
-      ${data
-        .map((good) => {
-          return `
-        <div class="sortable-table__row">
-          ${this.template(this.data)}
-          ${this.arrWithId
-            .map((id, index) => {
-              if (index !== 0) {
-                return `<div class="sortable-table__cell">${good[id]}</div>`;
-              }
-            })
-            .join("")}
-        </div>`;
-        })
-        .join("")}`;
+  bodyRowFill(data) {
+    return data
+      .map((item) => {
+        return `<div class="sortable-table__row">${this.bodyCellFill(
+          item
+        )}</div>`;
+      })
+      .join("");
   }
 
-  bodyFillNoImage(data) {
-    this.subElements.body.innerHTML = `
-      ${data
-        .map((good) => {
-          return `
-        <div class="sortable-table__row">
-          ${this.arrWithId
-            .map((id) => `<div class="sortable-table__cell">${good[id]}</div>`)
-            .join("")}
-        </div>`;
-        })
-        .join("")}`;
+  bodyCellFill(item) {
+    const cells = this.headerConfig.map(({ id, template }) => {
+      return {
+        id,
+        template,
+      };
+    });
+
+    return cells
+      .map(({ id, template }) => {
+        return template
+          ? template(item[id])
+          : `<div class="sortable-table__cell">${item[id]}</div>`;
+      })
+      .join("");
   }
 
   checkType(id) {
@@ -145,11 +125,7 @@ export default class SortableTable {
       }
     });
 
-    if (this.template) {
-      this.bodyFillWithImage(sortedArr);
-    } else {
-      this.bodyFillNoImage(sortedArr);
-    }
+    this.subElements.body.innerHTML = this.bodyRowFill(sortedArr);
   }
 
   remove() {
