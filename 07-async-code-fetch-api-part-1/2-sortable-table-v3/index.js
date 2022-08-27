@@ -72,14 +72,13 @@ export default class SortableTable {
     }
   };
 
-  onScroll = async (event) => {
-    const lastChild = this.subElements.body.lastElementChild;
-    const bottom = lastChild.getBoundingClientRect().bottom;
-    const screenHeight = document.documentElement.clientHeight;
+  onScroll = async () => {
+    const { lastElementChild: lastChild } = this.subElements.body;
+    const { bottom } = lastChild.getBoundingClientRect();
+    const { clientHeight: screenHeight } = document.documentElement;
 
     if (bottom < screenHeight && !this.loading) {
-      const order = this.elementWithArrow.dataset.order;
-      const id = this.elementWithArrow.dataset.id;
+      const { order, id } = this.elementWithArrow.dataset;
       const range = 30;
 
       this.loading = true;
@@ -204,7 +203,7 @@ export default class SortableTable {
   }
 
   initEventListener() {
-    const header = this.subElements.header;
+    const { header } = this.subElements;
 
     header.addEventListener("pointerdown", this.onClick);
     document.addEventListener("scroll", this.onScroll);
