@@ -1,6 +1,10 @@
 class Tooltip {
   constructor() {
-    return Tooltip.instance ? Tooltip.instance : (Tooltip.instance = this);
+    if (Tooltip.instance) {
+      return Tooltip.instance;
+    } else {
+      Tooltip.instance = this;
+    }
   }
 
   initialize() {
@@ -44,8 +48,10 @@ class Tooltip {
   };
 
   mouseMoveFunc = (event) => {
-    this.element.style.left = event.clientX + 10 + "px";
-    this.element.style.top = event.clientY + 10 + "px";
+    const shift = 10;
+
+    this.element.style.left = event.clientX + shift + "px";
+    this.element.style.top = event.clientY + shift + "px";
   };
 
   remove() {
