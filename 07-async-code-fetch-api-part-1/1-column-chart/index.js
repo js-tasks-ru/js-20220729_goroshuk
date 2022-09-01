@@ -4,7 +4,6 @@ const BACKEND_URL = "https://course-js.javascript.ru";
 
 export default class ColumnChart {
   chartHeight = 50;
-  BACKEND_URL = "https://course-js.javascript.ru";
   subElements = {};
 
   constructor({
@@ -17,7 +16,7 @@ export default class ColumnChart {
     this.range = range;
     this.label = label;
     this.link = link;
-    this.url = new URL(url, this.BACKEND_URL);
+    this.url = new URL(url, BACKEND_URL);
     this.formatHeading = formatHeading;
 
     this.render();
@@ -54,7 +53,7 @@ export default class ColumnChart {
     const elements = this.element.querySelectorAll("[data-element]");
 
     for (const element of elements) {
-      let elementName = element.dataset.element;
+      const elementName = element.dataset.element;
       this.subElements[elementName] = element;
     }
   }
