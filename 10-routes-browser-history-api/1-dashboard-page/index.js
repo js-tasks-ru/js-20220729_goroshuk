@@ -146,7 +146,7 @@ export default class Page {
       formatHeading,
     });
 
-    let elementName = label + "Chart";
+    const elementName = label + "Chart";
 
     this.subElements[elementName].innerHTML = "";
     this.subElements[elementName].append(columnChart.element);
@@ -175,5 +175,6 @@ export default class Page {
     this.remove();
     this.element = null;
     this.subElements = {};
+    document.removeEventListener("date-select", this.onDateSelectFunction);
   }
 }
