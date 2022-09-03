@@ -9,30 +9,34 @@ const BACKEND_URL = "https://course-js.javascript.ru/";
 
 export default class Page {
   element = "";
-  arrayWithCharts = [];
+  chartsInfo = [];
+  chartElements = [];
   subElements = {};
+  components = {};
   range = {
     from: new Date(),
     to: new Date(),
   };
 
   onDateSelectFunction = async (event) => {
-    this.range.from = event.detail.from;
-    this.range.to = event.detail.to;
+    try {
+      const { from, to } = event.detail;
 
-    this.arrayWithCharts.forEach((object) => this.chartsFill(object));
-    await this.addBestSellers();
+      this.chartElements.forEach((chart) => chart.update(from, to));
+
+      await this.bestSellersReFill(from, to);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   constructor() {
     this.getDatesForRange();
-    this.makeURL();
 
-    this.initEventListeners();
-    this.chartArrayFill();
+    this.chartsInfoFill();
   }
 
-  chartArrayFill() {
+  chartsInfoFill() {
     const charts = {
       orders: {
         label: "orders",
@@ -47,22 +51,18 @@ export default class Page {
       },
     };
 
-    this.arrayWithCharts = Object.values(charts);
+    this.chartsInfo = Object.values(charts);
   }
 
   initEventListeners() {
-    document.addEventListener("date-select", this.onDateSelectFunction);
+    this.element.addEventListener("date-select", this.onDateSelectFunction);
   }
 
-  makeURL(
-    path,
-    from = this.range.from.toISOString(),
-    to = this.range.to.toISOString()
-  ) {
+  makeURL(path, from = this.range.from, to = this.range.to) {
     const url = new URL(`/api/dashboard/${path}`, BACKEND_URL);
 
-    url.searchParams.set("from", from);
-    url.searchParams.set("to", to);
+    url.searchParams.set("from", from.toISOString());
+    url.searchParams.set("to", to.toISOString());
 
     return url.pathname + url.search;
   }
@@ -114,10 +114,12 @@ export default class Page {
   addRangePicker() {
     const rangePicker = new RangePicker(this.range);
 
+    this.components.rangePicker = rangePicker;
+
     return rangePicker.element;
   }
 
-  async addBestSellers() {
+  addBestSellers() {
     const path = "bestsellers";
     const urlBestSellers = this.makeURL(path);
 
@@ -128,9 +130,26 @@ export default class Page {
 
     this.subElements.sortableTable.innerHTML = "";
     this.subElements.sortableTable.append(bestSellersTable.element);
+
+    this.components.bestSellersTable = bestSellersTable;
   }
 
-  async chartsFill({
+  async bestSellersReFill(from, to) {
+    try {
+      const previousUrl = this.components.bestSellersTable.url;
+
+      previousUrl.searchParams.set("from", from.toISOString());
+      previousUrl.searchParams.set("to", to.toISOString());
+
+      const data = await fetchJson(previousUrl);
+
+      this.components.bestSellersTable.addRows(data);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  chartsFill({
     label = "",
     link = "",
     range = this.range,
@@ -150,19 +169,27 @@ export default class Page {
 
     this.subElements[elementName].innerHTML = "";
     this.subElements[elementName].append(columnChart.element);
+
+    this.chartElements.push(columnChart);
   }
 
   render = async () => {
-    this.makeTemplate();
+    try {
+      this.makeTemplate();
 
-    const rangePicker = this.addRangePicker();
-    this.subElements.rangePicker.append(rangePicker);
+      const rangePicker = this.addRangePicker();
+      this.subElements.rangePicker.append(rangePicker);
 
-    await this.addBestSellers();
+      await this.addBestSellers();
 
-    this.arrayWithCharts.forEach((object) => this.chartsFill(object));
+      this.chartsInfo.forEach((object) => this.chartsFill(object));
 
-    return this.element;
+      this.initEventListeners();
+
+      return this.element;
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   remove() {
@@ -173,8 +200,21 @@ export default class Page {
 
   destroy() {
     this.remove();
+
+    for (const component of Object.keys(this.components)) {
+      this.components[component].destroy();
+    }
+
+    for (const chart of this.chartElements) {
+      chart.destroy();
+    }
+
     this.element = null;
-    this.subElements = {};
+    this.subElements = null;
+    this.chartsInfo = null;
+    this.chartElements = null;
+    this.range = null;
+
     document.removeEventListener("date-select", this.onDateSelectFunction);
   }
 }
