@@ -35,15 +35,12 @@ export default class SortableTable {
 
     header.innerHTML = this.headerConfig
       .map((item) => {
-        if (item.sortType) {
-          return `<div class="sortable-table__cell" data-id="${item.id}" data-sortable="${item.sortable}" data-sorttype="${item.sortType}">
-      <span>${item.title}</span>
-    </div>`;
-        } else {
-          return `<div class="sortable-table__cell" data-id="${item.id}" data-sortable="${item.sortable}">
-        <span>${item.title}</span>
-      </div>`;
-        }
+        return `
+        <div class="sortable-table__cell" ${
+          item.sortType ? `data-sorttype=${item.sortType}` : ""
+        } data-id="${item.id}" data-sortable="${item.sortable}">
+              <span>${item.title}</span>
+             </div>`;
       })
       .join("");
 
@@ -61,7 +58,7 @@ export default class SortableTable {
 
     this.subElements.body = body;
 
-    this.subElements.body.innerHTML += this.bodyRowFill(this.data);
+    this.subElements.body.innerHTML = this.bodyRowFill(this.data);
 
     this.element.append(body);
   }

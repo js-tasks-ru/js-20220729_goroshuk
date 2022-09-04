@@ -7,7 +7,6 @@ export default class SortableTable {
   data = [];
   loading = false;
   elementWithArrow;
-  BACKEND_URL = "https://course-js.javascript.ru";
   start = 0;
   end = 30;
 
@@ -43,31 +42,13 @@ export default class SortableTable {
             <span class="sort-arrow"></span>
           </span>`;
 
-        if (this.isSortLocally) {
-          this.sortOnClient(id, "desc");
-        } else {
-          this.start = 0;
-          this.end = 30;
-
-          this.data = [];
-
-          this.sortOnServer(id, "desc");
-        }
+        this.sort(id, "desc");
       } else {
         const presentOrder = cell.dataset.order;
 
         cell.setAttribute("data-order", orders[presentOrder]);
 
-        if (this.isSortLocally) {
-          this.sortOnClient(id, orders[presentOrder]);
-        } else {
-          this.start = 0;
-          this.end = 30;
-
-          this.data = [];
-
-          this.sortOnServer(id, orders[presentOrder]);
-        }
+        this.sort(id, orders[presentOrder]);
       }
     }
   };
@@ -100,7 +81,7 @@ export default class SortableTable {
     this.headersConfig = headersConfig;
     this.sorted = sorted;
     this.isSortLocally = isSortLocally;
-    this.url = new URL(url, this.BACKEND_URL);
+    this.url = new URL(url, BACKEND_URL);
 
     this.render();
   }
@@ -131,6 +112,18 @@ export default class SortableTable {
 
     this.bodyReFilling();
   }
+
+  sort = (id = "title", order = "desc") => {
+    if (this.isSortLocally) {
+      this.sortOnClient(id, order);
+    } else {
+      this.start = 0;
+      this.end = 30;
+      this.data = [];
+
+      this.sortOnServer(id, order);
+    }
+  };
 
   emptyData() {
     const div = document.createElement("div");
@@ -218,21 +211,18 @@ export default class SortableTable {
   makeHeader() {
     const header = document.createElement("div");
 
-    header.classList += "sortable-table__header sortable-table__row";
+    header.classList.add("sortable-table__header", "sortable-table__row");
 
     header.setAttribute("data-element", "header");
 
     header.innerHTML = this.headersConfig
       .map((item) => {
-        if (item.sortType) {
-          return `<div class="sortable-table__cell" data-id="${item.id}" data-sortable="${item.sortable}" data-sorttype="${item.sortType}">
-      <span>${item.title}</span>
-    </div>`;
-        } else {
-          return `<div class="sortable-table__cell" data-id="${item.id}" data-sortable="${item.sortable}">
-        <span>${item.title}</span>
-      </div>`;
-        }
+        return `
+        <div class="sortable-table__cell" ${
+          item.sortType ? `data-sorttype=${item.sortType}` : ""
+        } data-id="${item.id}" data-sortable="${item.sortable}">
+              <span>${item.title}</span>
+        </div>`;
       })
       .join("");
 
@@ -348,7 +338,6 @@ export default class SortableTable {
       this.bodyReFilling();
     } else {
       this.subElements.loading.style.display = "";
-      return;
     }
   }
 

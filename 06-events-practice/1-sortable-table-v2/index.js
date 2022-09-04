@@ -99,15 +99,12 @@ export default class SortableTable {
 
     header.innerHTML = this.headersConfig
       .map((item) => {
-        if (item.sortType) {
-          return `<div class="sortable-table__cell" data-id="${item.id}" data-sortable="${item.sortable}" data-sorttype="${item.sortType}">
-      <span>${item.title}</span>
-    </div>`;
-        } else {
-          return `<div class="sortable-table__cell" data-id="${item.id}" data-sortable="${item.sortable}">
-        <span>${item.title}</span>
-      </div>`;
-        }
+        return `
+        <div class="sortable-table__cell" ${
+          item.sortType ? `data-sorttype=${item.sortType}` : ""
+        } data-id="${item.id}" data-sortable="${item.sortable}">
+              <span>${item.title}</span>
+             </div>`;
       })
       .join("");
 

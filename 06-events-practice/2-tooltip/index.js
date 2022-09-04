@@ -2,9 +2,8 @@ class Tooltip {
   constructor() {
     if (Tooltip.instance) {
       return Tooltip.instance;
-    } else {
-      Tooltip.instance = this;
     }
+    Tooltip.instance = this;
   }
 
   initialize() {
