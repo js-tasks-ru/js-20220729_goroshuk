@@ -132,8 +132,6 @@ export default class ProductForm {
 
     data.images = this.imagesForData();
 
-    console.log(data);
-
     return data;
   }
 
@@ -270,7 +268,7 @@ export default class ProductForm {
       return div.firstElementChild;
     });
 
-    const images = this.sortableList(array);
+    const images = this.sortableList({ items: array });
 
     this.subElements.imageListContainer.append(images);
   }

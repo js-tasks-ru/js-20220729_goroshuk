@@ -128,6 +128,5 @@ export default class ColumnChart {
 
   destroy() {
     this.element.remove();
-    this.tooltip.destroy();
   }
 }

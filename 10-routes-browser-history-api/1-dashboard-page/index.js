@@ -206,6 +206,8 @@ export default class Page {
   destroy() {
     this.remove();
 
+    this.tooltip.destroy();
+
     for (const component of Object.keys(this.components)) {
       this.components[component].destroy();
     }
