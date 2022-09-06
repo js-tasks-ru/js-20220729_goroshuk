@@ -1,6 +1,8 @@
 import RangePicker from "./components/range-picker/src/index.js";
 import SortableTable from "./components/sortable-table/src/index.js";
 import ColumnChart from "./components/column-chart/src/index.js";
+import Tooltip from "../../06-events-practice/2-tooltip/index.js";
+
 import header from "./bestsellers-header.js";
 
 import fetchJson from "./utils/fetch-json.js";
@@ -72,6 +74,12 @@ export default class Page {
     this.range.to = new Date();
 
     this.range.from.setMonth(this.range.from.getMonth() - 1);
+  }
+
+  makeTooltip() {
+    this.tooltip = new Tooltip();
+
+    this.tooltip.initialize();
   }
 
   makeTemplate() {
@@ -173,23 +181,20 @@ export default class Page {
     this.chartElements.push(columnChart);
   }
 
-  render = async () => {
-    try {
-      this.makeTemplate();
+  render = () => {
+    this.makeTemplate();
 
-      const rangePicker = this.addRangePicker();
-      this.subElements.rangePicker.append(rangePicker);
+    const rangePicker = this.addRangePicker();
+    this.subElements.rangePicker.append(rangePicker);
 
-      await this.addBestSellers();
+    this.addBestSellers();
 
-      this.chartsInfo.forEach((object) => this.chartsFill(object));
+    this.chartsInfo.forEach((object) => this.chartsFill(object));
 
-      this.initEventListeners();
+    this.initEventListeners();
+    this.makeTooltip();
 
-      return this.element;
-    } catch (error) {
-      console.log(error);
-    }
+    return this.element;
   };
 
   remove() {
@@ -200,6 +205,8 @@ export default class Page {
 
   destroy() {
     this.remove();
+
+    this.tooltip.destroy();
 
     for (const component of Object.keys(this.components)) {
       this.components[component].destroy();
